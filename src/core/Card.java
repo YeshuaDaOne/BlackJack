@@ -1,19 +1,30 @@
 package core;
 
-public class Card extends Deck{
-    public static String getRank;
+public class Card {
     private String suit;
     private String rank;
     private int value;
-    Card(String suit, String rank, int value){
+
+    public Card(String suit, String rank, int value) {
         this.suit = suit;
         this.rank = rank;
         this.value = value;
     }
-    public String getRank(){
+
+    public String getRank() {
         return rank;
     }
-    public String getSuit(){
+
+    public String getSuit() {
         return suit;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+
+    public String toString() {
+        return rank + " of " + suit;
     }
 }

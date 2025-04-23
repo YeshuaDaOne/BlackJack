@@ -1,37 +1,42 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Deck {
-    public ArrayList<Card> deck;
-    Deck(){
-       deck = new ArrayList<>(52);
-       String[] suits ={"Hearts", "Diamonds", "Clubs", "Spades"};
-       String[] ranks ={"Ace", "King", "Queen", "Jack", "10", "9", "8", "7", "6", "5", "4", "3", "2"};
+    private ArrayList<Card> cards;
 
-       for(String suit: suits){
-           for(String rank: ranks){
-//           int value = determineCardValue(new Card("Hearts","Ace",""));
-//           deck.add(new Card(suit,rank,value));
-       }
-       }
-        }
-        public void shuffle(){
+    public Deck() {
+        cards = new ArrayList<>();
+        String[] suits = {"hearts", "diamonds", "clubs", "spades"};
+        String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"};
 
-        }
-        private int determineCardValue(Card card){
-        String rank = Card.getRank;
-        if(rank.equals("Ace")){
-            return 1;
-        }
-        else if (rank.equals("King") || rank.equals("Queen")|| rank.equals("Jack")){
-            return 10;
-        }
-        else{
-            return Integer.parseInt(rank);
-        }
-        }
+        for (String suit : suits) {
+            for (String rank : ranks) {
+                int value;
 
+
+                if (rank.equals("Ace")) {
+                    value = 11;
+                } else if (rank.equals("King") || rank.equals("Queen") || rank.equals("Jack")) { //
+                    value = 10;
+                } else {
+
+                    value = Integer.parseInt(rank);
+                }
+
+
+                cards.add(new Card(suit, rank, value));
+            }
+        }
+        shuffle();
     }
 
+    public void shuffle() {
+        Collections.shuffle(cards);
+    }
 
+    public Card dealCard() {
+        return cards.isEmpty() ? null : cards.remove(0);
+    }
+}

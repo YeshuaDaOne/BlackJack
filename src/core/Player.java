@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Player {
     private ArrayList<Card> hand;
@@ -9,12 +10,22 @@ public class Player {
     private boolean isCPU; // Distinguish CPU players
     private int exp;
 
+
+
+    private HashMap<String, Boolean> upgrades; // Track purchased upgrades
+
     public Player(String name, boolean isCPU) {
         this.name = name;
         this.isCPU = isCPU;
         this.hand = new ArrayList<>();
-
         this.exp = 0;
+        this.upgrades = new HashMap<>(); // Initialize upgrade storage
+
+        // Default: No upgrades are active
+        upgrades.put("Skip Turn", false);
+        upgrades.put("Force Draw", false);
+        upgrades.put("Elimination Block", false);
+        upgrades.put("Double EXP", false);
     }
 
     public void addCard(Card card) {
@@ -39,13 +50,15 @@ public class Player {
             }
         }
 
+
         while (aceCount > 0 && value > 21) {
-            value -= 10;
+            value -= 10; // Change Ace from 11 to 1
             aceCount--;
         }
 
         return value;
     }
+
 
     public ArrayList<Card> getHand() {
         return hand;
@@ -70,11 +83,15 @@ public class Player {
     public int getExp() {
         return exp;
     }
+    public void setUpgrade(String upgradeName, boolean value) {
+        if (upgrades.containsKey(upgradeName)) {
+            upgrades.put(upgradeName, value);
+        }
+    }
 
-
-
-
-
+    public boolean hasUpgrade(String upgradeName) {
+        return upgrades.getOrDefault(upgradeName, false);
+    }
 
     public String getName() {
         return name;

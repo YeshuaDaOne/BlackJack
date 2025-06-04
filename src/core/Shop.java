@@ -11,7 +11,7 @@ public class Shop {
     public Shop() {
         items = new HashMap<>();
         items.put("T. Skip Turn (Common)", 50);
-        items.put("E.v Force Draw (Uncommon)", 100);
+        items.put("E. Force Draw (Uncommon)", 100);
         items.put("B. Elimination Block (Rare)", 200);
         items.put(" D. Double EXP Next Round (Legendary)", 500);
     }

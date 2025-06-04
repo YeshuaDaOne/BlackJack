@@ -1,12 +1,8 @@
 package core;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-import org.newdawn.slick.Input;
 import core.Images;
 
 import java.util.ArrayList;
@@ -37,7 +33,10 @@ public class Game extends BasicGameState
     private int playerHitCount = 0;
     private Shop shop;
     private boolean roundAlreadyUpdated = false;
-
+    private Image winImage;
+    private Image loseImage;
+    private Image tieImage;
+private Image background;
 
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
         gc.setShowFPS(true);
@@ -49,7 +48,10 @@ public class Game extends BasicGameState
         players.add(player);
         players.add(new Player("CPU 1", true));
         players.add(new Player("CPU 2", true));
-
+        winImage = new Image("assets/winText.png");
+        loseImage = new Image("assets/loseText.png");
+        tieImage = new Image("assets/tieText.png");
+    background = new Image("assets/blackjackTable.png");
 
 
 
@@ -69,6 +71,7 @@ public class Game extends BasicGameState
 	}
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
+       background.draw(0,0,Main.getScreenWidth(),Main.getScreenHeight());
         g.setColor(Color.white);
         g.drawString("Round: " + roundCount, Main.getScreenWidth() / 2 - 50, 50);
         g.drawString("EXP: " + player.getExp(), Main.getScreenWidth() / 2 - 50, 80);
@@ -129,16 +132,14 @@ public class Game extends BasicGameState
         }
 
         g.setColor(Color.white);
-        if (win) {
-            g.setColor(Color.green);
-            g.drawString("Player Wins!", 400, Main.getScreenHeight() / 2);
-        } else if (lose) {
-            g.setColor(Color.red);
-            g.drawString("Dealer Wins!", 400, Main.getScreenHeight() / 2);
-        } else if (tie) {
-            g.setColor(Color.gray);
-            g.drawString("It's a Tie!", 400, Main.getScreenHeight() / 2);
+        if (win && winImage != null) {
+            winImage.draw(Main.getScreenWidth() / 2f - winImage.getWidth() / 2f, Main.getScreenHeight() / 2f - winImage.getHeight() / 2f);
+        } else if (lose && loseImage != null) {
+            loseImage.draw(Main.getScreenWidth() / 2f - loseImage.getWidth() / 2f, Main.getScreenHeight() / 2f - loseImage.getHeight() / 2f);
+        } else if (tie && tieImage != null) {
+            tieImage.draw(Main.getScreenWidth() / 2f - tieImage.getWidth() / 2f, Main.getScreenHeight() / 2f - tieImage.getHeight() / 2f);
         }
+
         if (shop.isShopOpen()) {
             shop.render(g); // Render shop UI when open
         }
@@ -182,7 +183,7 @@ public class Game extends BasicGameState
             return;
         }
 
-        if ((key == Input.KEY_SPACE) && (win || lose || tie)) {
+        if ((key == Input.KEY_R) && (win || lose || tie)) {
             try {
                 resetGame();
             } catch (SlickException e) {
@@ -190,7 +191,9 @@ public class Game extends BasicGameState
             }
             return;
         }
-
+if((key == Input.KEY_ESCAPE) &&(win||lose||tie)){
+    System.exit(0);
+}
         if (win || lose || tie) {
             return;
         }

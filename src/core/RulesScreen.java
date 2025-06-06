@@ -10,6 +10,8 @@ public class RulesScreen extends BasicGameState {
     private int backY;
     private int x;
     private int y;
+    private TrueTypeFont boldFont;
+
     private StateBasedGame sbg;
     public RulesScreen(int id) {
         this.id = id;
@@ -24,23 +26,29 @@ public class RulesScreen extends BasicGameState {
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
         this.sbg = sbg;
         ruleScreen= new Image("assets/ruleScreen.png");
+        java.awt.Font awtFont = new java.awt.Font("Arial", java.awt.Font.BOLD, 24); // Bold, size 24
+        boldFont = new TrueTypeFont(awtFont, true);
     }
 
     @Override
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
         backX = Main.getScreenWidth();
         backY = Main.getScreenHeight();
-        x = Main.getScreenWidth()/3;
-        y = Main.getScreenHeight()/3;
+        x = Main.getScreenWidth() / 3;
+        y = Main.getScreenHeight() / 4;
 
-        ruleScreen.draw(0,0,backX,backY);
+        ruleScreen.draw(0, 0, backX, backY);
         g.setColor(Color.white);
-        g.drawString("How to Play Blackjack:", x, y);
-        g.drawString("- Try to get as close to 21 as possible without going over.", x, y+50);
-        g.drawString("- Face cards are worth 10, Aces are 1 or 11.", x, y+100);
-        g.drawString("- Press H to Hit, S to Stand.", x, y+150);
-        g.drawString("- Use EXP to buy upgrades in the shop (press O to open it).", x, y+200);
-        g.drawString("Press B to go back to the Title Screen.", x, y+250);
+
+
+        boldFont.drawString(x, y, "How to Play Blackjack", Color.red);
+ boldFont.drawString(x, y + 40, "- Try to get as close to 21 as possible", Color.red);
+ boldFont.drawString(x, y + 80, "- Face cards are worth 10, Aces are 1 or 11", Color.red);
+ boldFont.drawString(x, y + 120, "- Press H to Hit, S to Stand", Color.red);
+ boldFont.drawString(x, y + 160, "- Use EXP to buy upgrades (press O)", Color.red);
+ boldFont.drawString(x, y + 200, "- Press M to mute music", Color.red);
+ boldFont.drawString(x, y + 240, "- Press B to go back to Title Screen", Color.red);
+
     }
 
     @Override

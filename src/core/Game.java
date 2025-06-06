@@ -37,6 +37,12 @@ public class Game extends BasicGameState
     private Image loseImage;
     private Image tieImage;
 private Image background;
+private Sound loseSound;
+private Sound winSound;
+private Sound backSound;
+    private boolean isMuted = false;
+    private TrueTypeFont boldFont;
+
 
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
         gc.setShowFPS(true);
@@ -52,7 +58,11 @@ private Image background;
         loseImage = new Image("assets/loseText.png");
         tieImage = new Image("assets/tieText.png");
     background = new Image("assets/blackjackTable.png");
-
+    loseSound = new Sound("assets/loseSound.wav");
+    winSound = new Sound("assets/winSound.wav");
+backSound = new Sound("assets/backSound.wav");
+        java.awt.Font awtFont = new java.awt.Font("Arial", java.awt.Font.BOLD, 24); // Bold, size 24
+        boldFont = new TrueTypeFont(awtFont, true);
 
 
         for (Player p : players) {
@@ -73,14 +83,13 @@ private Image background;
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
        background.draw(0,0,Main.getScreenWidth(),Main.getScreenHeight());
         g.setColor(Color.white);
-        g.drawString("Round: " + roundCount, Main.getScreenWidth() / 2 - 50, 50);
-        g.drawString("EXP: " + player.getExp(), Main.getScreenWidth() / 2 - 50, 80);
+
+        boldFont.drawString(Main.getScreenWidth()/2-50,50,"Round: " + roundCount);
+        boldFont.drawString(Main.getScreenWidth() / 2 - 50,80,"EXP: " + player.getExp());
         float playerX = 100, playerY = Main.getScreenHeight() - 200;
         float dealerX = 100, dealerY = 100;
         float cpu1X = Main.getScreenWidth() - 500, cpu1Y = 200;
         float cpu2X = cpu1X, cpu2Y = cpu1Y + 250;
-
-
 
         for (Card card : player.getHand()) {
             Images cardImage = new Images(card);
@@ -88,18 +97,14 @@ private Image background;
             playerX += cardImage.getWidth() * 0.25f + 10;
         }
         g.setColor(Color.white);
-        g.drawString("Player's Hand Value: " + player.getHandValue(), 100, playerY - 50);
+        boldFont.drawString(150,playerY-75,"Player's Hand Value: " + player.getHandValue());
 
-
-        g.setColor(Color.yellow);
-        g.drawString("Dealer's Hand Value: " + dealer.getHandValue(), 100, dealerY - 50);
+        boldFont.drawString(150,dealerY-50,"Dealer's Hand Value: " + dealer.getHandValue(),Color.yellow);
         for (Card card : dealer.getHand()) {
             Images cardImage = new Images(card);
             cardImage.render(dealerX, dealerY);
             dealerX += cardImage.getWidth() * 0.25f + 10;
         }
-
-
 
         g.setColor(Color.white);
         g.drawString("CPU Hands", cpu1X, cpu1Y - 30);
@@ -143,14 +148,22 @@ private Image background;
         if (shop.isShopOpen()) {
             shop.render(g); // Render shop UI when open
         }
+        g.setColor(Color.white);
+        boldFont.drawString(20, 30, "Music: " + (isMuted ? "Muted (M to unmute)" : "Playing (M to mute)"), Color.orange);
+
+
     }
 
 
 
     public void enter(GameContainer gc, StateBasedGame sbg) throws SlickException
 	{
-		// This code happens when you enter a gameState.
-	}
+
+        if (backSound != null && !backSound.playing()) {
+backSound.loop();
+ }
+
+    }
 
 	public void leave(GameContainer gc, StateBasedGame sbg)
 	{
@@ -220,6 +233,20 @@ if((key == Input.KEY_ESCAPE) &&(win||lose||tie)){
             endPlayerTurn();
             handleDealerTurn(deck, dealer);
         }
+        if (key == Input.KEY_M) {
+            isMuted = !isMuted;
+
+            if (isMuted) {
+                if (backSound.playing()) {
+                    backSound.stop();
+                }
+            } else {
+                if (!backSound.playing()) {
+                    backSound.loop();
+                }
+            }
+        }
+
     }
 
 
@@ -250,36 +277,38 @@ if((key == Input.KEY_ESCAPE) &&(win||lose||tie)){
     private void checkWinCondition(Player player, Player dealer) {
         int playerScore = player.getHandValue();
         int dealerScore = dealer.getHandValue();
+        int cpu1Score = players.get(1).getHandValue();
+        int cpu2Score = players.get(2).getHandValue();
 
-        if (player.getHandValue() > 21) {
-            if (player.hasUpgrade("Elimination Block")) {
-                System.out.println("Elimination Block activated! Player is saved.");
-                player.setUpgrade("Elimination Block", false); // Use upgrade once
-            } else {
-                System.out.println("Player busts! Dealer wins.");
-                lose = true;
-            }
-        }
-         if (dealerScore > 21) {
-            System.out.println("Dealer busts! Player wins!");
-            win = true;
+        // Set scores over 21 to 0 (busted)
+        if (playerScore > 21) playerScore = 0;
+        if (dealerScore > 21) dealerScore = 0;
+        if (cpu1Score > 21) cpu1Score = 0;
+        if (cpu2Score > 21) cpu2Score = 0;
 
-        } else if (playerScore > dealerScore) {
+        // Find the best score
+        int bestScore = Math.max(playerScore, Math.max(dealerScore, Math.max(cpu1Score, cpu2Score)));
+
+        // Determine outcome
+        if (playerScore == bestScore && bestScore != 0) {
             System.out.println("Player wins with " + playerScore + "!");
             win = true;
-
-        } else if (playerScore < dealerScore) {
-            System.out.println("Dealer wins with " + dealerScore + "!");
-            lose = true;
-
-        } else {
+            if (winSound != null && !winSound.playing()) winSound.play();
+        } else if (playerScore == bestScore && bestScore == 0) {
+            System.out.println("Everyone busted. It's a tie!");
+            tie = true;
+        } else if (playerScore == bestScore) {
             System.out.println("It's a tie!");
             tie = true;
-
+        } else {
+            System.out.println("Player loses. Best score: " + bestScore);
+            lose = true;
+            if (loseSound != null && !loseSound.playing()) loseSound.play();
         }
-rewardExp();
 
+        rewardExp();
     }
+
 
 
 
@@ -419,6 +448,13 @@ rewardExp();
         currentPlayerIndex = 0;
         roundCount++;
         rewardExp();
+        if (loseSound.playing()) {
+            loseSound.stop();
+        }
+        if(winSound.playing()){
+            winSound.stop();
+        }
+
     }
 
     private void openShop() {
